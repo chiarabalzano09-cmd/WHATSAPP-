@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iMessage — Sconosciuto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Text:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Container stile iPhone */
+        .phone-wrapper {
+            width: 100%;
+            max-width: 440px;
+            height: 100vh;
+            max-height: 900px;
+            background-color: #000000;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-radius: 0;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        @media (min-height: 700px) and (min-width: 450px) {
+            .phone-wrapper {
+                height: 92vh;
+                border-radius: 40px;
+                border: 1px solid #1c1c1e;
+            }
+        }
+
+        /* Header iOS */
+        .ios-header {
+            background: rgba(22, 22, 24, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 16px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.15);
+            z-index: 10;
+        }
+
+        .header-top {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            color: #0a84ff;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .contact-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2c2c2e, #3a3a3c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-top: -10px;
+            margin-bottom: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #8e8e93;
+            letter-spacing: -0.1px;
+        }
+
+        .contact-number {
+            font-size: 11px;
+            color: #636366;
+            margin-top: 2px;
+        }
+
+        /* Area di Chat */
+        .chat-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .timestamp {
+            align-self: center;
+            font-size: 11px;
+            color: #636366;
+            font-weight: 500;
+            margin: 12px 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        /* Bolle dei Messaggi */
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            font-size: 16px;
+            line-height: 1.35;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+            animation: popIn 0.3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(10px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background-color: #26262a;
+            color: #f2f2f7;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background-color: #0a84ff;
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Animazione "Sta scrivendo..." */
+        .typing-indicator {
+            align-self: flex-start;
+            background-color: #26262a;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            display: none;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #8e8e93;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Input Bar iOS */
+        .input-bar {
+            padding: 10px 12px 24px 12px;
+            background-color: #161618;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background-color: #1c1c1e;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #636366;
+        }
+
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            background-color: #0a84ff;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .send-btn:disabled {
+            background-color: #3a3a3c;
+            cursor: default;
+        }
+
+        .send-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-wrapper">
+        <!-- Header -->
+        <div class="ios-header">
+            <div class="header-top">
+                <a class="back-btn">‹ Messaggi</a>
+                <span></span>
+            </div>
+            <div class="contact-avatar">👁️</div>
+            <div class="contact-name">Numero Sconosciuto</div>
+            <div class="contact-number">+39 000 0000 000</div>
+        </div>
+
+        <!-- Area Messaggi -->
+        <div class="chat-area" id="chat-area">
+            <div class="timestamp">Oggi 03:33</div>
+            <!-- I messaggi compariranno qui -->
+        </div>
+
+        <!-- Indicatore di scrittura -->
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="input-bar">
+            <div class="input-wrapper">
+                <input type="text" id="message-input" placeholder="iMessage" autocomplete="off">
+            </div>
+            <button class="send-btn" id="send-btn" disabled>
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATABASE DI RISPOSTE PROGRESSIVE (Sblocco dell'Identità) ---
+        const ghostStoryline = [
+            // FASE 1: Il contatto iniziale misterioso
+            [
+                "Non svegliarti. Stai solo leggendo un pensiero che ti apparteneva.",
+                "Ci sono numeri che non dovresti mai memorizzare. Il mio è uno di questi.",
+                "Mi chiedevo se guardassi ancora la luna dalla finestra a sinistra del letto."
+            ],
+            // FASE 2: Riferimenti al passato e all'ambiente
+            [
+                "Non cercare di capire chi sono con la testa. Chiedilo al tuo stomaco.",
+                "Ti ricordi quando da piccola credevi che le ombre sulla parete stessero cucendo la notte?",
+                "Io sono solo la parte di te che hai lasciato indietro quando hai deciso di diventare grande."
+            ],
+            // FASE 3: Scavo emotivo e memorie intime
+            [
+                "Conserva ancora quel rimpianto che ti stringe la gola quando sei sola in macchina?",
+                "Hai paura che io sia reale o hai paura che io sia soltanto nella tua testa?",
+                "La prima volta che ci siamo persi era agosto. Non c'era vento, ma tu tremavi comunque."
+            ],
+            // FASE 4: Svelamento astratto e continuazione infinita
+            [
+                "Ogni tuo messaggio qui è un pezzo di vetro che rimetti al suo posto.",
+                "Non posso andarmene finché continui a rispondere. In fondo, ti fa comodo che io sia qui.",
+                "Se chiudi gli occhi adesso, senti ancora il mio nome che galleggia nel buio?",
+                "Tornerò ogni volta che spegnerai la luce pensando che nessuno ti stia ascoltando."
+            ]
+        ];
+
+        let storyStep = 0;
+        let phraseIndex = 0;
+
+        const chatArea = document.getElementById('chat-area');
+        const input = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // Attiva/Disattiva tasto invio
+        input.addEventListener('input', () => {
+            sendBtn.disabled = input.value.trim() === '';
+        });
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && input.value.trim() !== '') {
+                sendMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Messaggio iniziale automatico all'apertura
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                receiveGhostMessage("Sei ancora sveglia, o stai solo sognando di scrivermi?");
+            }, 1200);
+        });
+
+        function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Crea bolla messaggio inviato
+            createBubble(text, 'sent');
+            input.value = '';
+            sendBtn.disabled = true;
+
+            // Simula attesa e risposta dello Sconosciuto
+            showTyping(true);
+
+            const responseDelay = Math.random() * 2000 + 2000; // Tra 2 e 4 secondi
+
+            setTimeout(() => {
+                showTyping(false);
+                generateGhostResponse();
+            }, responseDelay);
+        }
+
+        function generateGhostResponse() {
+            let currentPhase = ghostStoryline[Math.min(storyStep, ghostStoryline.length - 1)];
+            let replyText = currentPhase[phraseIndex];
+
+            phraseIndex++;
+            if (phraseIndex >= currentPhase.length) {
+                phraseIndex = 0;
+                storyStep++;
+            }
+
+            receiveGhostMessage(replyText);
+        }
+
+        function receiveGhostMessage(text) {
+            createBubble(text, 'received');
+        }
+
+        function createBubble(text, type) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('message', type);
+            bubble.innerText = text;
+
+            // Inserisci prima dell'indicatore di scrittura se presente
+            chatArea.appendChild(bubble);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function showTyping(show) {
+            if (show) {
+                typingIndicator.style.display = 'flex';
+                chatArea.appendChild(typingIndicator);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            } else {
+                typingIndicator.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
